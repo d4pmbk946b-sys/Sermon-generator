@@ -1,99 +1,979 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunday Sermon Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: Georgia, serif;
-      background: #f5f0e8;
-      color: #2c2c2c;
-      min-height: 100vh;
+
+```
+:root {
+  --navy: #1c2f4a;
+  --gold: #b8963e;
+  --cream: #f7f3ec;
+  --parchment: #efe9db;
+  --text: #2a2520;
+  --text-light: #6b6058;
+  --border: #ddd5c4;
+  --white: #ffffff;
+}
+
+body {
+  font-family: 'Source Serif 4', Georgia, serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  font-weight: 300;
+}
+
+header {
+  background: var(--navy);
+  color: white;
+  padding: 40px 32px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 40px,
+    rgba(184,150,62,0.04) 40px, rgba(184,150,62,0.04) 41px
+  );
+}
+
+.header-cross { font-size: 1.2rem; color: var(--gold); margin-bottom: 10px; letter-spacing: 0.3em; }
+
+header h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.2rem; font-weight: 400; letter-spacing: 0.02em; position: relative;
+}
+
+header p {
+  margin-top: 8px; font-size: 0.9rem; opacity: 0.6;
+  font-style: italic; font-weight: 300; letter-spacing: 0.05em; position: relative;
+}
+
+.gold-rule { width: 60px; height: 1px; background: var(--gold); margin: 14px auto 0; }
+
+.container { max-width: 800px; margin: 0 auto; padding: 40px 20px 60px; }
+
+.card {
+  background: var(--white); border-radius: 2px; padding: 30px 32px;
+  margin-bottom: 20px; border: 1px solid var(--border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.card-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--parchment);
+}
+
+.card-header h2 {
+  font-family: 'Playfair Display', Georgia, serif; font-size: 0.75rem;
+  color: var(--gold); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600;
+}
+
+.card-header::after { content: ''; flex: 1; height: 1px; background: var(--parchment); }
+
+#sunday-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.6rem; color: var(--navy); margin-bottom: 6px; font-weight: 400;
+}
+
+#feast-name { font-size: 0.9rem; color: var(--gold); font-style: italic; margin-bottom: 16px; }
+
+.transfer-notice {
+  display: none;
+  background: #fffbf0;
+  border: 1px solid #e8d5a0;
+  border-radius: 2px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 0.88rem;
+  color: #7a6020;
+}
+
+.transfer-notice label {
+  display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+}
+
+.transfer-notice input[type="checkbox"] {
+  accent-color: var(--navy); margin-top: 3px; flex-shrink: 0;
+}
+
+.transfer-text { line-height: 1.5; }
+.transfer-warning {
+  display: none; font-size: 0.8rem; color: #a07830;
+  margin-top: 4px; font-style: italic;
+}
+
+#gaudete-row {
+  display: none; align-items: center; gap: 10px; margin-top: 12px;
+  padding-top: 12px; border-top: 1px solid var(--parchment);
+  font-size: 0.82rem; color: var(--text-light);
+}
+
+#gaudete-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+#gaudete-row input { accent-color: var(--navy); }
+
+#track-toggle-row {
+  display: none; align-items: center; gap: 10px; margin-top: 16px;
+  padding-top: 16px; border-top: 1px solid var(--parchment);
+  font-size: 0.82rem; color: var(--text-light);
+}
+
+#track-toggle-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+#track-toggle-row input { accent-color: var(--navy); }
+.track-label { font-size: 0.82rem; color: var(--text-light); margin-right: 4px; }
+
+.readings-list { list-style: none; }
+
+.readings-list li {
+  padding: 10px 0; border-bottom: 1px solid var(--parchment);
+  font-size: 0.95rem; display: flex; gap: 16px; align-items: baseline;
+}
+
+.readings-list li:last-child { border-bottom: none; }
+
+.reading-type {
+  color: var(--text-light); min-width: 120px; font-size: 0.78rem;
+  letter-spacing: 0.08em; text-transform: uppercase; padding-top: 2px; font-weight: 400;
+}
+
+.reading-ref { color: var(--navy); font-weight: 400; }
+
+.reading-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+.reading-opt {
+  border: 1.5px solid var(--border); border-radius: 2px; padding: 14px 16px;
+  cursor: pointer; transition: all 0.18s; display: flex; align-items: center;
+  gap: 10px; font-size: 0.9rem; color: var(--text-light);
+}
+
+.reading-opt:hover { border-color: var(--navy); color: var(--navy); }
+.reading-opt.selected { border-color: var(--navy); background: #f0f4f8; color: var(--navy); }
+.reading-opt input { accent-color: var(--navy); }
+
+#custom-box { display: none; margin-top: 4px; }
+
+#custom-box textarea {
+  width: 100%; height: 90px; padding: 12px 14px;
+  border: 1.5px solid var(--border); border-radius: 2px;
+  font-family: 'Source Serif 4', Georgia, serif; font-size: 0.92rem;
+  font-weight: 300; resize: vertical; color: var(--text); background: var(--cream);
+}
+
+#custom-box textarea:focus { outline: none; border-color: var(--navy); }
+
+.tone-options { display: flex; flex-direction: column; gap: 10px; }
+
+.tone-opt {
+  border: 1.5px solid var(--border); border-radius: 2px; padding: 14px 18px;
+  cursor: pointer; transition: all 0.18s; display: flex; align-items: flex-start; gap: 12px;
+}
+
+.tone-opt:hover { border-color: var(--navy); }
+.tone-opt.selected { border-color: var(--navy); background: #f0f4f8; }
+.tone-opt input { accent-color: var(--navy); margin-top: 3px; flex-shrink: 0; }
+
+.tone-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1rem; color: var(--navy); display: block; margin-bottom: 2px;
+}
+
+.tone-desc { font-size: 0.82rem; color: var(--text-light); font-style: italic; }
+
+#custom-notes {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 2px;
+  font-family: 'Source Serif 4', Georgia, serif; font-size: 0.92rem; font-weight: 300;
+  resize: vertical; color: var(--text); background: var(--cream); height: 80px;
+}
+
+#custom-notes:focus { outline: none; border-color: var(--navy); }
+.notes-hint { font-size: 0.8rem; color: var(--text-light); font-style: italic; margin-top: 8px; }
+
+#generate-btn {
+  width: 100%; padding: 18px; background: var(--navy); color: white;
+  border: none; border-radius: 2px; font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem; cursor: pointer; letter-spacing: 0.08em;
+  transition: background 0.2s; margin-bottom: 6px;
+}
+
+#generate-btn:hover { background: #254d7a; }
+#generate-btn:disabled { background: #999; cursor: not-allowed; }
+
+.btn-sub { text-align: center; font-size: 0.78rem; color: var(--text-light); font-style: italic; margin-bottom: 20px; }
+
+#loading {
+  display: none; text-align: center; padding: 40px 32px;
+  background: white; border: 1px solid var(--border); margin-bottom: 20px;
+}
+
+.spinner {
+  width: 36px; height: 36px; border: 2px solid var(--parchment);
+  border-top-color: var(--gold); border-radius: 50%;
+  animation: spin 0.9s linear infinite; margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading p { color: var(--text-light); font-style: italic; font-size: 0.92rem; }
+
+#error-msg {
+  display: none; color: #c0392b; font-size: 0.88rem; padding: 12px 16px;
+  background: #fdf0ee; border: 1px solid #e8c4bf; border-radius: 2px; margin-bottom: 16px;
+}
+
+#output-section { display: none; }
+
+#sermon-text {
+  line-height: 1.95; font-size: 1.02rem; white-space: pre-wrap;
+  color: var(--text); font-weight: 300;
+}
+
+#copy-btn {
+  margin-top: 24px; padding: 10px 22px; background: white;
+  border: 1.5px solid var(--navy); color: var(--navy); border-radius: 2px;
+  font-family: 'Source Serif 4', Georgia, serif; font-size: 0.88rem;
+  cursor: pointer; transition: all 0.18s; letter-spacing: 0.04em;
+}
+
+#copy-btn:hover { background: var(--navy); color: white; }
+
+footer {
+  text-align: center; padding: 32px 20px; color: var(--text-light);
+  font-size: 0.78rem; font-style: italic; border-top: 1px solid var(--border); margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  header h1 { font-size: 1.6rem; }
+  .reading-options { grid-template-columns: 1fr; }
+  .card { padding: 22px 18px; }
+}
+```
+
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-cross">✦ ✦ ✦</div>
+  <h1>Sunday Sermon Generator</h1>
+  <p>A tool for Church of England clergy</p>
+  <div class="gold-rule"></div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-header"><h2>This Sunday</h2></div>
+    <div id="sunday-name">Loading…</div>
+    <div id="feast-name"></div>
+
+```
+<div class="transfer-notice" id="transfer-notice">
+  <label>
+    <input type="checkbox" id="transfer-checkbox">
+    <span class="transfer-text">
+      <span id="transfer-label"></span>
+      <span class="transfer-warning" id="transfer-warning"></span>
+    </span>
+  </label>
+</div>
+
+<div id="gaudete-row">
+  <label>
+    <input type="checkbox" id="gaudete-checkbox">
+    Observing as Gaudete Sunday (rose/pink vestments)
+  </label>
+</div>
+
+<ul class="readings-list" id="readings-list"></ul>
+
+<div id="track-toggle-row">
+  <span class="track-label">Ordinary Time track:</span>
+  <label><input type="radio" name="track" value="related" checked> Related</label>
+  <label><input type="radio" name="track" value="continuous"> Continuous</label>
+</div>
+```
+
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>Readings</h2></div>
+    <div class="reading-options">
+      <label class="reading-opt selected" id="lbl-lectionary">
+        <input type="radio" name="reading-type" value="lectionary" checked>
+        Use lectionary readings
+      </label>
+      <label class="reading-opt" id="lbl-custom">
+        <input type="radio" name="reading-type" value="custom">
+        Use custom readings
+      </label>
+    </div>
+    <div id="custom-box">
+      <textarea placeholder="Enter Bible references or paste passage text here…"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>Preaching Style</h2></div>
+    <div class="tone-options">
+      <label class="tone-opt selected" id="tone-evangelical">
+        <input type="radio" name="tone" value="evangelical" checked>
+        <div>
+          <span class="tone-title">Evangelical</span>
+          <span class="tone-desc">Tim Keller / John Stott — expository, Christ-centred, applicatory</span>
+        </div>
+      </label>
+      <label class="tone-opt" id="tone-middle">
+        <input type="radio" name="tone" value="middle">
+        <div>
+          <span class="tone-title">Middle of the Road</span>
+          <span class="tone-desc">Sam Wells / Feasting on the Word — narrative, pastoral, theologically rich</span>
+        </div>
+      </label>
+      <label class="tone-opt" id="tone-anglocatholic">
+        <input type="radio" name="tone" value="anglocatholic">
+        <div>
+          <span class="tone-title">Anglo-Catholic</span>
+          <span class="tone-desc">Sacramental, liturgical, drawing on patristic and Catholic tradition</span>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>Anything else to add?</h2></div>
+    <textarea id="custom-notes" placeholder="e.g. "We are celebrating Seafarers' Sunday", "Gladys is 90 today", "Large number of children present", "Rural farming community"…"></textarea>
+    <p class="notes-hint">Optional — any context that should shape the sermon.</p>
+  </div>
+
+<button id="generate-btn">✦   Write My Sermon</button>
+
+  <p class="btn-sub">Generates a 4–5 minute homily using Claude AI</p>
+
+  <div id="error-msg"></div>
+  <div id="loading"><div class="spinner"></div><p>Preparing your homily…</p></div>
+
+  <div class="card" id="output-section">
+    <div class="card-header"><h2>Your Homily</h2></div>
+    <div id="sermon-text"></div>
+    <button id="copy-btn">Copy to clipboard</button>
+  </div>
+
+</div>
+
+<footer>
+  Generated sermons are a starting point for prayerful preparation, not a substitute for it.
+</footer>
+
+<script>
+// ═════════════════════════════════════════════════════════════
+// YEAR A LECTIONARY — Church of England / RCL
+// Advent 2025 – Christ the King 2026
+// ═════════════════════════════════════════════════════════════
+
+const LECTIONARY = {
+
+  // ── ADVENT ───────────────────────────────────────────────
+  "2025-11-30": {
+    name: "First Sunday of Advent",
+    ot: "Isaiah 2:1-5", psalm: "Psalm 122",
+    epistle: "Romans 13:11-14", gospel: "Matthew 24:36-44"
+  },
+  "2025-12-07": {
+    name: "Second Sunday of Advent",
+    ot: "Isaiah 11:1-10", psalm: "Psalm 72:1-7,18-19",
+    epistle: "Romans 15:4-13", gospel: "Matthew 3:1-12"
+  },
+  "2025-12-14": {
+    name: "Third Sunday of Advent",
+    ot: "Isaiah 35:1-10", psalm: "Psalm 146:5-10",
+    epistle: "James 5:7-10", gospel: "Matthew 11:2-11",
+    isGaudete: true
+  },
+  "2025-12-21": {
+    name: "Fourth Sunday of Advent",
+    ot: "Isaiah 7:10-16", psalm: "Psalm 80:1-7,17-19",
+    epistle: "Romans 1:1-7", gospel: "Matthew 1:18-25"
+  },
+
+  // ── CHRISTMAS ────────────────────────────────────────────
+  "2025-12-28": {
+    name: "First Sunday of Christmas",
+    ot: "Isaiah 63:7-9", psalm: "Psalm 148",
+    epistle: "Hebrews 2:10-18", gospel: "Matthew 2:13-23"
+  },
+  "2026-01-04": {
+    name: "Second Sunday of Christmas",
+    ot: "Jeremiah 31:7-14", psalm: "Psalm 147:12-20",
+    epistle: "Ephesians 1:3-14", gospel: "John 1:1-18",
+    transferFeast: {
+      name: "The Epiphany",
+      label: "The Epiphany falls on Tuesday 6 January — observing on this Sunday instead?",
+      warning: "",
+      readings: {
+        name: "The Epiphany",
+        ot: "Isaiah 60:1-6", psalm: "Psalm 72:1-15",
+        epistle: "Ephesians 3:1-12", gospel: "Matthew 2:1-12"
+      }
     }
+  },
 
-    header {
-      background: #1a3a5c;
-      color: white;
-      padding: 24px 32px;
-      text-align: center;
+  // ── EPIPHANY ─────────────────────────────────────────────
+  "2026-01-11": {
+    name: "Baptism of Christ",
+    ot: "Isaiah 42:1-9", psalm: "Psalm 29",
+    epistle: "Acts 10:34-43", gospel: "Matthew 3:13-17"
+  },
+  "2026-01-18": {
+    name: "Second Sunday of Epiphany",
+    ot: "Isaiah 49:1-7", psalm: "Psalm 40:1-11",
+    epistle: "1 Corinthians 1:1-9", gospel: "John 1:29-42"
+  },
+  "2026-01-25": {
+    name: "Third Sunday of Epiphany",
+    ot: "Isaiah 9:1-4", psalm: "Psalm 27:1,4-9",
+    epistle: "1 Corinthians 1:10-18", gospel: "Matthew 4:12-23"
+  },
+  "2026-02-01": {
+    name: "Fourth Sunday of Epiphany",
+    ot: "Micah 6:1-8", psalm: "Psalm 15",
+    epistle: "1 Corinthians 1:18-31", gospel: "Matthew 5:1-12",
+    transferFeast: {
+      name: "The Presentation of Christ (Candlemas)",
+      label: "Candlemas (2 February) falls this week — observing on this Sunday instead?",
+      warning: "",
+      readings: {
+        name: "The Presentation of Christ (Candlemas)",
+        ot: "Malachi 3:1-5", psalm: "Psalm 24:7-10",
+        epistle: "Hebrews 2:14-18", gospel: "Luke 2:22-40"
+      }
     }
+  },
+  "2026-02-08": {
+    name: "Fifth Sunday of Epiphany",
+    ot: "Isaiah 58:1-9a", psalm: "Psalm 112:1-9",
+    epistle: "1 Corinthians 2:1-12", gospel: "Matthew 5:13-20"
+  },
+  "2026-02-15": {
+    name: "Sixth Sunday of Epiphany",
+    ot: "Deuteronomy 30:15-20", psalm: "Psalm 119:1-8",
+    epistle: "1 Corinthians 3:1-9", gospel: "Matthew 5:21-37"
+  },
 
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: normal;
-      letter-spacing: 0.05em;
+  // ── LENT ─────────────────────────────────────────────────
+  "2026-02-22": {
+    name: "First Sunday of Lent",
+    ot: "Genesis 2:15-17; 3:1-7", psalm: "Psalm 32",
+    epistle: "Romans 5:12-19", gospel: "Matthew 4:1-11"
+  },
+  "2026-03-01": {
+    name: "Second Sunday of Lent",
+    ot: "Genesis 12:1-4a", psalm: "Psalm 121",
+    epistle: "Romans 4:1-5,13-17", gospel: "John 3:1-17"
+  },
+  "2026-03-08": {
+    name: "Third Sunday of Lent",
+    ot: "Exodus 17:1-7", psalm: "Psalm 95",
+    epistle: "Romans 5:1-11", gospel: "John 4:5-42"
+  },
+  "2026-03-15": {
+    name: "Fourth Sunday of Lent",
+    ot: "1 Samuel 16:1-13", psalm: "Psalm 23",
+    epistle: "Ephesians 5:8-14", gospel: "John 9:1-41"
+  },
+  "2026-03-22": {
+    name: "Fifth Sunday of Lent",
+    ot: "Ezekiel 37:1-14", psalm: "Psalm 130",
+    epistle: "Romans 8:6-11", gospel: "John 11:1-45",
+    transferFeast: {
+      name: "The Annunciation",
+      label: "The Annunciation falls on Wednesday 25 March — observing on this Sunday instead?",
+      warning: "Note: The Annunciation in Lent is sometimes deferred until after Easter. Check your diocesan guidance.",
+      readings: {
+        name: "The Annunciation",
+        ot: "Isaiah 7:10-14", psalm: "Psalm 40:5-11",
+        epistle: "Hebrews 10:4-10", gospel: "Luke 1:26-38"
+      }
     }
+  },
+  "2026-03-29": {
+    name: "Palm Sunday",
+    ot: "Isaiah 50:4-9a", psalm: "Psalm 31:9-16",
+    epistle: "Philippians 2:5-11", gospel: "Matthew 27:11-54"
+  },
 
-    header p {
-      margin-top: 6px;
-      font-size: 0.95rem;
-      opacity: 0.8;
-      font-style: italic;
+  // ── EASTER ───────────────────────────────────────────────
+  "2026-04-05": {
+    name: "Easter Day",
+    ot: "Acts 10:34-43", psalm: "Psalm 118:1-2,14-24",
+    epistle: "Colossians 3:1-4", gospel: "Matthew 28:1-10"
+  },
+  "2026-04-12": {
+    name: "Second Sunday of Easter",
+    ot: "Acts 2:14a,22-32", psalm: "Psalm 16",
+    epistle: "1 Peter 1:3-9", gospel: "John 20:19-31"
+  },
+  "2026-04-19": {
+    name: "Third Sunday of Easter",
+    ot: "Acts 2:14a,36-41", psalm: "Psalm 116:1-4,12-19",
+    epistle: "1 Peter 1:17-23", gospel: "Luke 24:13-35"
+  },
+  "2026-04-26": {
+    name: "Fourth Sunday of Easter",
+    ot: "Acts 2:42-47", psalm: "Psalm 23",
+    epistle: "1 Peter 2:19-25", gospel: "John 10:1-10"
+  },
+  "2026-05-03": {
+    name: "Fifth Sunday of Easter",
+    ot: "Acts 7:55-60", psalm: "Psalm 31:1-5,15-16",
+    epistle: "1 Peter 2:2-10", gospel: "John 14:1-14"
+  },
+  "2026-05-10": {
+    name: "Sixth Sunday of Easter",
+    ot: "Acts 17:22-31", psalm: "Psalm 66:8-20",
+    epistle: "1 Peter 3:13-22", gospel: "John 14:15-21"
+  },
+  "2026-05-17": {
+    name: "Seventh Sunday of Easter",
+    ot: "Acts 1:6-14", psalm: "Psalm 68:1-10,32-35",
+    epistle: "1 Peter 4:12-14; 5:6-11", gospel: "John 17:1-11",
+    transferFeast: {
+      name: "Ascension Day",
+      label: "Ascension Day falls on Thursday 14 May — observing on this Sunday instead?",
+      warning: "Note: Some Anglo-Catholic parishes keep Ascension strictly on the Thursday.",
+      readings: {
+        name: "Ascension Day",
+        ot: "Acts 1:1-11", psalm: "Psalm 47",
+        epistle: "Ephesians 1:15-23", gospel: "Luke 24:44-53"
+      }
     }
+  },
 
-    .container {
-      max-width: 780px;
-      margin: 40px auto;
-      padding: 0 20px;
+  // ── PENTECOST & TRINITY ──────────────────────────────────
+  "2026-05-24": {
+    name: "Pentecost",
+    ot: "Acts 2:1-21", psalm: "Psalm 104:24-34,35b",
+    epistle: "1 Corinthians 12:3b-13", gospel: "John 20:19-23"
+  },
+  "2026-05-31": {
+    name: "Trinity Sunday",
+    ot: "Isaiah 40:12-17,27-31", psalm: "Psalm 8",
+    epistle: "2 Corinthians 13:11-13", gospel: "Matthew 28:16-20"
+  },
+
+  // ── ORDINARY TIME ────────────────────────────────────────
+  "2026-06-07": {
+    name: "Second Sunday after Trinity",
+    related:    { ot: "Hosea 5:15 – 6:6",             psalm: "Psalm 50:7-15" },
+    continuous: { ot: "Genesis 12:1-9",                psalm: "Psalm 33:1-12" },
+    epistle: "Romans 4:13-25", gospel: "Matthew 9:9-13,18-26", ordinary: true
+  },
+  "2026-06-14": {
+    name: "Third Sunday after Trinity",
+    related:    { ot: "Exodus 19:2-8a",                psalm: "Psalm 100" },
+    continuous: { ot: "Genesis 18:1-15; 21:1-7",      psalm: "Psalm 116:1-2,12-19" },
+    epistle: "Romans 5:1-8", gospel: "Matthew 9:35 – 10:8", ordinary: true
+  },
+  "2026-06-21": {
+    name: "Fourth Sunday after Trinity",
+    related:    { ot: "Jeremiah 20:7-13",              psalm: "Psalm 69:7-10,16-18" },
+    continuous: { ot: "Genesis 21:8-21",               psalm: "Psalm 86:1-10,16-17" },
+    epistle: "Romans 6:1b-11", gospel: "Matthew 10:24-39", ordinary: true
+  },
+  "2026-06-28": {
+    name: "Fifth Sunday after Trinity",
+    related:    { ot: "2 Kings 4:8-16",                psalm: "Psalm 89:1-4,15-18" },
+    continuous: { ot: "Genesis 22:1-14",               psalm: "Psalm 13" },
+    epistle: "Romans 6:12-23", gospel: "Matthew 10:40-42", ordinary: true
+  },
+  "2026-07-05": {
+    name: "Sixth Sunday after Trinity",
+    related:    { ot: "Zechariah 9:9-12",              psalm: "Psalm 145:8-14" },
+    continuous: { ot: "Genesis 24:34-38,42-49,58-67",  psalm: "Psalm 45:10-17" },
+    epistle: "Romans 7:15-25a", gospel: "Matthew 11:16-19,25-30", ordinary: true
+  },
+  "2026-07-12": {
+    name: "Seventh Sunday after Trinity",
+    related:    { ot: "Isaiah 55:10-13",               psalm: "Psalm 65:1-13" },
+    continuous: { ot: "Genesis 25:19-34",              psalm: "Psalm 119:105-112" },
+    epistle: "Romans 8:1-11", gospel: "Matthew 13:1-9,18-23", ordinary: true
+  },
+  "2026-07-19": {
+    name: "Eighth Sunday after Trinity",
+    related:    { ot: "Wisdom 12:13,16-19",            psalm: "Psalm 86:11-17" },
+    continuous: { ot: "Genesis 28:10-19a",             psalm: "Psalm 139:1-12,23-24" },
+    epistle: "Romans 8:12-25", gospel: "Matthew 13:24-30,36-43", ordinary: true
+  },
+  "2026-07-26": {
+    name: "Ninth Sunday after Trinity",
+    related:    { ot: "1 Kings 3:5-12",                psalm: "Psalm 119:129-136" },
+    continuous: { ot: "Genesis 29:15-28",              psalm: "Psalm 105:1-11,45b" },
+    epistle: "Romans 8:26-39", gospel: "Matthew 13:31-33,44-52", ordinary: true
+  },
+  "2026-08-02": {
+    name: "Tenth Sunday after Trinity",
+    related:    { ot: "Isaiah 55:1-5",                 psalm: "Psalm 145:8-9,14-21" },
+    continuous: { ot: "Genesis 32:22-31",              psalm: "Psalm 17:1-7,15" },
+    epistle: "Romans 9:1-5", gospel: "Matthew 14:13-21", ordinary: true
+  },
+  "2026-08-09": {
+    name: "Eleventh Sunday after Trinity",
+    related:    { ot: "1 Kings 19:9-18",               psalm: "Psalm 85:8-13" },
+    continuous: { ot: "Genesis 37:1-4,12-28",          psalm: "Psalm 105:1-6,16-22,45b" },
+    epistle: "Romans 10:5-15", gospel: "Matthew 14:22-33", ordinary: true
+  },
+  "2026-08-16": {
+    name: "Twelfth Sunday after Trinity",
+    related:    { ot: "Isaiah 56:1,6-8",               psalm: "Psalm 67" },
+    continuous: { ot: "Genesis 45:1-15",               psalm: "Psalm 133" },
+    epistle: "Romans 11:1-2a,29-32", gospel: "Matthew 15:21-28", ordinary: true
+  },
+  "2026-08-23": {
+    name: "Thirteenth Sunday after Trinity",
+    related:    { ot: "Isaiah 51:1-6",                 psalm: "Psalm 138" },
+    continuous: { ot: "Exodus 1:8 – 2:10",             psalm: "Psalm 124" },
+    epistle: "Romans 12:1-8", gospel: "Matthew 16:13-20", ordinary: true
+  },
+  "2026-08-30": {
+    name: "Fourteenth Sunday after Trinity",
+    related:    { ot: "Jeremiah 15:15-21",             psalm: "Psalm 26:1-8" },
+    continuous: { ot: "Exodus 3:1-15",                 psalm: "Psalm 105:1-6,23-26,45c" },
+    epistle: "Romans 12:9-21", gospel: "Matthew 16:21-28", ordinary: true
+  },
+  "2026-09-06": {
+    name: "Fifteenth Sunday after Trinity",
+    related:    { ot: "Ezekiel 33:7-11",               psalm: "Psalm 119:33-40" },
+    continuous: { ot: "Exodus 12:1-14",                psalm: "Psalm 149" },
+    epistle: "Romans 13:8-14", gospel: "Matthew 18:15-20", ordinary: true
+  },
+  "2026-09-13": {
+    name: "Sixteenth Sunday after Trinity",
+    related:    { ot: "Genesis 50:15-21",              psalm: "Psalm 103:1-13" },
+    continuous: { ot: "Exodus 14:19-31",               psalm: "Psalm 114" },
+    epistle: "Romans 14:1-12", gospel: "Matthew 18:21-35", ordinary: true
+  },
+  "2026-09-20": {
+    name: "Seventeenth Sunday after Trinity",
+    related:    { ot: "Jonah 3:10 – 4:11",            psalm: "Psalm 145:1-8" },
+    continuous: { ot: "Exodus 16:2-15",                psalm: "Psalm 105:1-6,37-45" },
+    epistle: "Philippians 1:21-30", gospel: "Matthew 20:1-16", ordinary: true
+  },
+  "2026-09-27": {
+    name: "Eighteenth Sunday after Trinity",
+    related:    { ot: "Ezekiel 18:1-4,25-32",         psalm: "Psalm 25:1-9" },
+    continuous: { ot: "Exodus 17:1-7",                 psalm: "Psalm 78:1-4,12-16" },
+    epistle: "Philippians 2:1-13", gospel: "Matthew 21:23-32", ordinary: true
+  },
+  "2026-10-04": {
+    name: "Nineteenth Sunday after Trinity",
+    related:    { ot: "Isaiah 5:1-7",                  psalm: "Psalm 80:7-15" },
+    continuous: { ot: "Exodus 20:1-4,7-9,12-20",      psalm: "Psalm 19" },
+    epistle: "Philippians 3:4b-14", gospel: "Matthew 21:33-46", ordinary: true
+  },
+  "2026-10-11": {
+    name: "Twentieth Sunday after Trinity",
+    related:    { ot: "Isaiah 25:1-9",                 psalm: "Psalm 23" },
+    continuous: { ot: "Exodus 32:1-14",                psalm: "Psalm 106:1-6,19-23" },
+    epistle: "Philippians 4:1-9", gospel: "Matthew 22:1-14", ordinary: true
+  },
+  "2026-10-18": {
+    name: "Twenty-first Sunday after Trinity",
+    related:    { ot: "Isaiah 45:1-7",                 psalm: "Psalm 96:1-9" },
+    continuous: { ot: "Exodus 33:12-23",               psalm: "Psalm 99" },
+    epistle: "1 Thessalonians 1:1-10", gospel: "Matthew 22:15-22", ordinary: true
+  },
+  "2026-10-25": {
+    name: "Last Sunday after Trinity",
+    related:    { ot: "Leviticus 19:1-2,15-18",       psalm: "Psalm 1" },
+    continuous: { ot: "Deuteronomy 34:1-12",           psalm: "Psalm 90:1-6,13-17" },
+    epistle: "1 Thessalonians 2:1-8", gospel: "Matthew 22:34-46", ordinary: true
+  },
+
+  // ── ALL SAINTS & KINGDOM ─────────────────────────────────
+  "2026-11-01": {
+    name: "All Saints' Sunday",
+    ot: "Revelation 7:9-17", psalm: "Psalm 34:1-10,22",
+    epistle: "1 John 3:1-3", gospel: "Matthew 5:1-12",
+    feast: "All Saints' Day"
+  },
+  "2026-11-08": {
+    name: "Third Sunday before Advent",
+    related:    { ot: "Amos 5:18-24",                 psalm: "Psalm 70" },
+    continuous: { ot: "Joshua 24:1-3a,14-25",          psalm: "Psalm 78:1-7" },
+    epistle: "1 Thessalonians 4:13-18", gospel: "Matthew 25:1-13", ordinary: true
+  },
+  "2026-11-15": {
+    name: "Second Sunday before Advent",
+    related:    { ot: "Zephaniah 1:7,12-18",          psalm: "Psalm 90:1-8" },
+    continuous: { ot: "Judges 4:1-7",                  psalm: "Psalm 123" },
+    epistle: "1 Thessalonians 5:1-11", gospel: "Matthew 25:14-30", ordinary: true
+  },
+  "2026-11-22": {
+    name: "Christ the King",
+    ot: "Ezekiel 34:11-16,20-24", psalm: "Psalm 95:1-7a",
+    epistle: "Ephesians 1:15-23", gospel: "Matthew 25:31-46"
+  },
+};
+
+// ═════════════════════════════════════════════════════════════
+// UTILITIES
+// ═════════════════════════════════════════════════════════════
+
+function getUpcomingSunday() {
+  const today = new Date();
+  const day = today.getDay();
+  const daysUntilSunday = day === 0 ? 0 : 7 - day;
+  const sunday = new Date(today);
+  sunday.setDate(today.getDate() + daysUntilSunday);
+  return sunday;
+}
+
+function dateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getReadings(date, track) {
+  const key = dateKey(date);
+  const entry = LECTIONARY[key];
+  if (!entry) return null;
+
+  if (entry.ordinary) {
+    const t = track || 'related';
+    const trackData = entry[t] || entry.related;
+    return {
+      name: entry.name,
+      feast: entry.feast || null,
+      ot: trackData.ot,
+      psalm: trackData.psalm,
+      epistle: entry.epistle,
+      gospel: entry.gospel,
+      isOrdinary: true,
+      isGaudete: false,
+      transferFeast: entry.transferFeast || null
+    };
+  }
+
+  return {
+    name: entry.name,
+    feast: entry.feast || null,
+    ot: entry.ot,
+    psalm: entry.psalm,
+    epistle: entry.epistle,
+    gospel: entry.gospel,
+    isOrdinary: false,
+    isGaudete: entry.isGaudete || false,
+    transferFeast: entry.transferFeast || null
+  };
+}
+
+// ═════════════════════════════════════════════════════════════
+// STATE
+// ═════════════════════════════════════════════════════════════
+
+let currentReadings = null;
+let currentTrack = 'related';
+let transferActive = false;
+
+// ═════════════════════════════════════════════════════════════
+// RENDER
+// ═════════════════════════════════════════════════════════════
+
+function renderReadings(readings) {
+  currentReadings = readings;
+  const list = document.getElementById('readings-list');
+  list.innerHTML = '';
+
+  if (!readings) {
+    document.getElementById('sunday-name').textContent = 'Sunday';
+    document.getElementById('feast-name').textContent = '';
+    document.getElementById('transfer-notice').style.display = 'none';
+    document.getElementById('gaudete-row').style.display = 'none';
+    document.getElementById('track-toggle-row').style.display = 'none';
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="reading-type">Note</span><span class="reading-ref">Readings not found for this Sunday — please use custom readings below.</span>';
+    list.appendChild(li);
+    return;
+  }
+
+  const useTransfer = transferActive && readings.transferFeast;
+  const active = useTransfer ? readings.transferFeast.readings : readings;
+
+  document.getElementById('sunday-name').textContent = active.name;
+  document.getElementById('feast-name').textContent = readings.feast ? '✦ ' + readings.feast : '';
+
+  // Gaudete
+  document.getElementById('gaudete-row').style.display = readings.isGaudete ? 'flex' : 'none';
+
+  // Transfer notice
+  const notice = document.getElementById('transfer-notice');
+  const transferLabel = document.getElementById('transfer-label');
+  const transferWarning = document.getElementById('transfer-warning');
+
+  if (readings.transferFeast) {
+    notice.style.display = 'block';
+    if (useTransfer) {
+      transferLabel.textContent = '✓ Using ' + readings.transferFeast.name + ' readings for this Sunday.';
+      transferWarning.style.display = 'none';
+    } else {
+      transferLabel.textContent = readings.transferFeast.label;
+      if (readings.transferFeast.warning) {
+        transferWarning.textContent = readings.transferFeast.warning;
+        transferWarning.style.display = 'block';
+      } else {
+        transferWarning.style.display = 'none';
+      }
     }
+  } else {
+    notice.style.display = 'none';
+  }
 
-    .card {
-      background: white;
-      border-radius: 8px;
-      padding: 28px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  // Readings rows
+  [
+    { type: 'First Reading', ref: active.ot },
+    { type: 'Psalm',         ref: active.psalm },
+    { type: 'Epistle',       ref: active.epistle },
+    { type: 'Gospel',        ref: active.gospel },
+  ].forEach(r => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="reading-type">${r.type}</span><span class="reading-ref">${r.ref}</span>`;
+    list.appendChild(li);
+  });
+
+  // Track toggle — only in ordinary time and not when transfer is active
+  document.getElementById('track-toggle-row').style.display =
+    (readings.isOrdinary && !useTransfer) ? 'flex' : 'none';
+}
+
+function init() {
+  const sunday = getUpcomingSunday();
+  const readings = getReadings(sunday, currentTrack);
+  renderReadings(readings);
+}
+
+// ═════════════════════════════════════════════════════════════
+// INTERACTIONS
+// ═════════════════════════════════════════════════════════════
+
+document.getElementById('transfer-checkbox').addEventListener('change', function () {
+  transferActive = this.checked;
+  const sunday = getUpcomingSunday();
+  renderReadings(getReadings(sunday, currentTrack));
+});
+
+document.querySelectorAll('input[name="track"]').forEach(input => {
+  input.addEventListener('change', () => {
+    currentTrack = input.value;
+    renderReadings(getReadings(getUpcomingSunday(), currentTrack));
+  });
+});
+
+document.querySelectorAll('input[name="reading-type"]').forEach(input => {
+  input.addEventListener('change', () => {
+    const isCustom = input.value === 'custom';
+    document.getElementById('custom-box').style.display = isCustom ? 'block' : 'none';
+    document.getElementById('lbl-lectionary').classList.toggle('selected', !isCustom);
+    document.getElementById('lbl-custom').classList.toggle('selected', isCustom);
+  });
+});
+
+document.querySelectorAll('input[name="tone"]').forEach(input => {
+  input.addEventListener('change', () => {
+    document.querySelectorAll('.tone-opt').forEach(el => el.classList.remove('selected'));
+    input.closest('.tone-opt').classList.add('selected');
+  });
+});
+
+// ═════════════════════════════════════════════════════════════
+// GENERATE
+// ═════════════════════════════════════════════════════════════
+
+document.getElementById('generate-btn').addEventListener('click', async () => {
+  const readingType = document.querySelector('input[name="reading-type"]:checked').value;
+  const tone = document.querySelector('input[name="tone"]:checked').value;
+  const isCustom = readingType === 'custom';
+  const extraNotes = document.getElementById('custom-notes').value.trim();
+  const isGaudete = document.getElementById('gaudete-checkbox').checked;
+
+  let readingsText = '';
+  let sundayLabel = document.getElementById('sunday-name').textContent;
+
+  if (isCustom) {
+    readingsText = document.querySelector('#custom-box textarea').value.trim();
+    if (!readingsText) { alert('Please enter your custom readings.'); return; }
+  } else {
+    if (!currentReadings) { alert('No lectionary readings found. Please use custom readings.'); return; }
+    const useTransfer = transferActive && currentReadings.transferFeast;
+    const active = useTransfer ? currentReadings.transferFeast.readings : currentReadings;
+    readingsText = [
+      `First Reading: ${active.ot}`,
+      `Psalm: ${active.psalm}`,
+      `Epistle: ${active.epistle}`,
+      `Gospel: ${active.gospel}`
+    ].join('\n');
+    sundayLabel = active.name;
+  }
+
+  if (isGaudete) sundayLabel += ' (Gaudete Sunday — a note of joyful anticipation is appropriate)';
+
+  document.getElementById('generate-btn').disabled = true;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('output-section').style.display = 'none';
+  document.getElementById('error-msg').style.display = 'none';
+
+  try {
+    const response = await fetch('/api/sermon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ readings: readingsText, sunday: sundayLabel, tone, isCustom, extraNotes })
+    });
+
+    const data = await response.json();
+
+    if (data.sermon) {
+      document.getElementById('sermon-text').textContent = data.sermon;
+      document.getElementById('output-section').style.display = 'block';
+      document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      throw new Error('No sermon returned');
     }
+  } catch (err) {
+    const errEl = document.getElementById('error-msg');
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+  } finally {
+    document.getElementById('generate-btn').disabled = false;
+    document.getElementById('loading').style.display = 'none';
+  }
+});
 
-    .card h2 {
-      font-size: 1.1rem;
-      color: #1a3a5c;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #e0d9cc;
-      font-weight: normal;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      font-size: 0.85rem;
-    }
+// ═════════════════════════════════════════════════════════════
+// COPY
+// ═════════════════════════════════════════════════════════════
 
-    #sunday-name {
-      font-size: 1.4rem;
-      color: #1a3a5c;
-      margin-bottom: 6px;
-    }
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const text = document.getElementById('sermon-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy to clipboard', 2000);
+  });
+});
 
-    #feast-name {
-      font-size: 0.95rem;
-      color: #8b6914;
-      font-style: italic;
-      margin-bottom: 16px;
-    }
+// ═════════════════════════════════════════════════════════════
+init();
+</script>
 
-    .readings-list {
-      list-style: none;
-    }
-
-    .readings-list li {
-      padding: 8px 0;
-      border-bottom: 1px solid #f0ebe0;
-      font-size: 0.95rem;
-      display: flex;
-      gap: 12px;
-    }
-
-    .readings-list li:last-child { border-bottom: none; }
-
-    .reading-type {
-      color: #888;
-      min-width: 110px;
-      font-size: 0.85rem;
-      padding-top: 2px;
-    }
-
-    .radio-group {
-      display: flex;
-      gap: 16
+</body>
+</html>
