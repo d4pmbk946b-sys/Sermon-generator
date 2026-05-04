@@ -1,11 +1,3 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "api/sermon.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/sermon", "dest": "/api/sermon.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  "version": 2
 }
